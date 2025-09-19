@@ -91,7 +91,11 @@ class _LoginPageState extends State<LoginPage> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             CustomeTextFormField(
-              onSaved: (_value) {},
+              onSaved: (_value) {
+                setState(() {
+                  _email = _value;
+                });
+              },
               regEx:
                   r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+",
               hintText: "Email",
@@ -100,7 +104,7 @@ class _LoginPageState extends State<LoginPage> {
             CustomeTextFormField(
               onSaved: (_value) {
                 setState(() {
-                  _email = _value;
+                  _password = _value;
                 });
               },
               regEx: r".{8,}",
@@ -118,7 +122,12 @@ class _LoginPageState extends State<LoginPage> {
       name: "Login",
       height: _deviceHeight * 0.065,
       width: _deviceWidth * 0.65,
-      onPressed: () {},
+      onPressed: () {
+        if (_LoginFormKey.currentState!.validate()) {
+          _LoginFormKey.currentState!.save();
+          _auth.loginUsingEmailAndPassword(_email!, _password!);
+        }
+      },
     );
   }
 

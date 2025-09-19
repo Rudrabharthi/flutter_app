@@ -1,9 +1,17 @@
 //Packages
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:get_it/get_it.dart';
 
 //Widgets
 import '../widgets/custome_input_fields.dart';
 import '../widgets/rounded_button.dart';
+
+//Providers
+import '../providers/authentication_provider.dart';
+
+//Services
+import '../services/navigation_service.dart';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -13,17 +21,22 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  late double _deviceHeight;
-  late double _deviceWidth;
+  late double _deviceHeight = MediaQuery.of(context).size.height;
+  late double _deviceWidth = MediaQuery.of(context).size.width;
+
+  late AuthenticationProvider _auth = Provider.of<AuthenticationProvider>(
+    context,
+  );
+  late NavigationService _navigation = GetIt.instance.get<NavigationService>();
 
   final _LoginFormKey = GlobalKey<FormState>();
 
+  String? _email;
+  String? _password;
+
   @override
   Widget build(BuildContext context) {
-    _deviceHeight = MediaQuery.of(context).size.height;
-    _deviceWidth = MediaQuery.of(context).size.width;
-
-    return _buildUI(); // 👈 return UI here
+    return _buildUI(); // return UI here
   }
 
   Widget _buildUI() {
@@ -85,7 +98,11 @@ class _LoginPageState extends State<LoginPage> {
               obscureText: false,
             ),
             CustomeTextFormField(
-              onSaved: (_value) {},
+              onSaved: (_value) {
+                setState(() {
+                  _email = _value;
+                });
+              },
               regEx: r".{8,}",
               hintText: "Password",
               obscureText: true,

@@ -7,10 +7,15 @@ import 'package:get_it/get_it.dart';
 import '../services/database_service.dart';
 import '../services/navigation_service.dart';
 
+//Models
+import '../models/chat_user.dart';
+
 class AuthenticationProvider extends ChangeNotifier {
   late final FirebaseAuth _auth;
   late final NavigationService _navigationService;
   late final DatabaseService _databaseService;
+
+  late ChatUser user;
 
   AuthenticationProvider() {
     _auth = FirebaseAuth.instance;
@@ -19,10 +24,21 @@ class AuthenticationProvider extends ChangeNotifier {
 
     _auth.authStateChanges().listen((_user) {
       if (_user != null) {
-        print("Logged in");
-      } else {
-        print("Not Authenticated");
-      }
+        _databaseService.updateUserLastSeenTime(_user.uid);
+        _databaseService.getUser(_user.uid).then((_snapshort) {
+          Map<String, dynamic> _userData =
+              _snapshort.data()! as Map<String, dynamic>;
+          user = ChatUser.fromJSON(
+            {
+              "uid": _user.uid,
+              "name": _userData["name"],
+              "email": _userData["email"],
+              "last_active": _userData["last_active"],
+              "image": _userData["image"],
+            },
+          );
+        });
+      } else {}
     });
   }
 

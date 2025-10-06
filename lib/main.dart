@@ -17,6 +17,7 @@ import './services/navigation_service.dart';
 // Pages
 import './pages/splash_page.dart';
 import './pages/login_page.dart';
+import './pages/register_page.dart';
 import './pages/home_page.dart';
 
 void main() async {
@@ -73,7 +74,8 @@ class _MyAppState extends State<MyApp> {
         navigatorKey: NavigationService.navigatorKey, // ✅ Static key
         initialRoute: '/login',
         routes: {
-          '/login': (_) => LoginPage(),
+          '/login': (BuildContext _context) => LoginPage(),
+          '/register': (BuildContext _context) => RegisterPage(),
           '/home': (BuildContext _context) => HomePage(),
         },
       ),

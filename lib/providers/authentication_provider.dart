@@ -37,8 +37,11 @@ class AuthenticationProvider extends ChangeNotifier {
               "image": _userData["image"],
             },
           );
+          _navigationService.removeAndNavigateToRoute('/home');
         });
-      } else {}
+      } else {
+        _navigationService.removeAndNavigateToRoute('/login');
+      }
     });
   }
 

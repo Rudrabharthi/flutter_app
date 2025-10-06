@@ -17,6 +17,7 @@ import './services/navigation_service.dart';
 // Pages
 import './pages/splash_page.dart';
 import './pages/login_page.dart';
+import './pages/home_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -73,6 +74,7 @@ class _MyAppState extends State<MyApp> {
         initialRoute: '/login',
         routes: {
           '/login': (_) => LoginPage(),
+          '/home': (BuildContext _context) => HomePage(),
         },
       ),
     );

@@ -17,9 +17,7 @@ import '../widgets/rounded_button.dart';
 //Providers
 import '../providers/authentication_provider.dart';
 
-
 class RegisterPage extends StatefulWidget {
-
   @override
   State<StatefulWidget> createState() {
     return _RegusterPageState();
@@ -27,7 +25,6 @@ class RegisterPage extends StatefulWidget {
 }
 
 class _RegusterPageState extends State<RegisterPage> {
-
   @override
   Widget build(BuildContext context) {
     return _buildUI();

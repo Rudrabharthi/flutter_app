@@ -25,12 +25,38 @@ class RegisterPage extends StatefulWidget {
 }
 
 class _RegusterPageState extends State<RegisterPage> {
+  late double _deviceHeight;
+  late double _deviceWidth;
+
   @override
   Widget build(BuildContext context) {
     return _buildUI();
   }
 
   Widget _buildUI() {
-    return Scaffold();
+    return Scaffold(
+      resizeToAvoidBottomInset: false,
+      body: Container(
+        padding: EdgeInsets.symmetric(
+          horizontal: _deviceWidth * 0.03,
+          vertical: _deviceHeight * 0.02,
+        ),
+        height: _deviceHeight * 0.98,
+        width: _deviceWidth * 0.97,
+        child: Column(
+          mainAxisSize: MainAxisSize.max,
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            _profileImageField()
+          ],
+        ),
+      ),
+    );
+  }
+
+
+  Widget _profileImageField() {
+    return 
   }
 }

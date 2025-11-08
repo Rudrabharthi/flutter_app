@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 
 // Firebase Packages
 import 'package:firebase_core/firebase_core.dart';
@@ -13,6 +14,9 @@ import './providers/authentication_provider.dart';
 
 // Services
 import './services/navigation_service.dart';
+import './services/media_service.dart';
+import './services/database_service.dart';
+import './services/cloud_storage_service.dart';
 
 // Pages
 import './pages/splash_page.dart';
@@ -22,10 +26,16 @@ import './pages/home_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform, // works for Android + Web
-  );
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  _setupServices();
   runApp(MyApp());
+}
+
+void _setupServices() {
+  GetIt.instance.registerSingleton<NavigationService>(NavigationService());
+  GetIt.instance.registerSingleton<MediaService>(MediaService());
+  GetIt.instance.registerSingleton<DatabaseService>(DatabaseService());
+  GetIt.instance.registerSingleton<CloudStorageService>(CloudStorageService());
 }
 
 class MyApp extends StatefulWidget {
@@ -44,10 +54,7 @@ class _MyAppState extends State<MyApp> {
   }
 
   Future<void> _setup() async {
-    // Firebase Analytics instance (optional)
     analytics = FirebaseAnalytics.instance;
-
-    // Fake splash delay
     await Future.delayed(const Duration(seconds: 1));
     setState(() {
       _initialized = true;
@@ -71,7 +78,7 @@ class _MyAppState extends State<MyApp> {
             backgroundColor: Color.fromRGBO(30, 29, 37, 1.0),
           ),
         ),
-        navigatorKey: NavigationService.navigatorKey, // ✅ Static key
+        navigatorKey: NavigationService.navigatorKey,
         initialRoute: '/login',
         routes: {
           '/login': (BuildContext _context) => LoginPage(),

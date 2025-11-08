@@ -22,6 +22,10 @@ class NavigationService {
     );
   }
 
+  String? getCurrentRoute() {
+    return ModalRoute.of(navigatorKey.currentState!.context)?.settings.name!;
+  }
+
   void goBack() {
     navigatorKey.currentState?.pop();
   }

@@ -21,13 +21,11 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  late double _deviceHeight = MediaQuery.of(context).size.height;
-  late double _deviceWidth = MediaQuery.of(context).size.width;
+  late double _deviceHeight;
+  late double _deviceWidth;
 
-  late AuthenticationProvider _auth = Provider.of<AuthenticationProvider>(
-    context,
-  );
-  late NavigationService _navigation = GetIt.instance.get<NavigationService>();
+  late AuthenticationProvider _auth;
+  late NavigationService _navigation;
 
   final _LoginFormKey = GlobalKey<FormState>();
 
@@ -36,7 +34,11 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    return _buildUI(); // return UI here
+    _deviceHeight = MediaQuery.of(context).size.height;
+    _deviceWidth = MediaQuery.of(context).size.width;
+    _auth = Provider.of<AuthenticationProvider>(context);
+    _navigation = GetIt.instance.get<NavigationService>();
+    return _buildUI();
   }
 
   Widget _buildUI() {
@@ -133,8 +135,13 @@ class _LoginPageState extends State<LoginPage> {
 
   Widget _registerAccountLink() {
     return GestureDetector(
-      onTap: () => _navigation.navigateToRoute('/register'),
+      onTap: () {
+        print("Register link tapped!");
+        _navigation.navigateToRoute('/register');
+      },
       child: Container(
+        padding: EdgeInsets.all(10),
+        color: Colors.transparent,
         child: Text(
           'Don\'t have an account?',
           style: TextStyle(color: Colors.blueAccent),

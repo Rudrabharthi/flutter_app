@@ -22,7 +22,7 @@ class NavigationService {
     );
   }
 
-  String? getCurrentRoute(){
+  String? getCurrentRoute() {
     return ModalRoute.of(navigatorKey.currentState!.context)?.settings.name!;
   }
 

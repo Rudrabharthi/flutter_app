@@ -12,13 +12,13 @@ class CloudStorageService {
 
   CloudStorageService() {}
 
-  Future<String?> saveUserImageToStorage(
+    Future<String?> saveUserImageToStorage(
       String _uid, PlatformFile _file) async {
     try {
       Reference _ref =
           _storage.ref().child('images/users/$_uid/profile.${_file.extension}');
       UploadTask _task = _ref.putFile(
-        File(_file.path),
+        File(_file.path!)
       );
       return await _task.then(
         (_result) => _result.ref.getDownloadURL(),

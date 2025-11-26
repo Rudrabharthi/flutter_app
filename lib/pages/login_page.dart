@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:get_it/get_it.dart';
 
 //Widgets
-import '../widgets/custome_input_fields.dart';
+import '../widgets/custom_input_fields.dart';
 import '../widgets/rounded_button.dart';
 
 //Providers

@@ -1,14 +1,11 @@
-//Packages
-//import 'package:chatify_app/models/chat_user.dart';
+// authentication_provider.dart
+
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get_it/get_it.dart';
 
-//Services
 import '../services/database_service.dart';
 import '../services/navigation_service.dart';
-
-//Models
 import '../models/chat_user.dart';
 
 class AuthenticationProvider extends ChangeNotifier {
@@ -16,101 +13,103 @@ class AuthenticationProvider extends ChangeNotifier {
   late final NavigationService _navigationService;
   late final DatabaseService _databaseService;
 
-  late ChatUser user;
+  ChatUser? user; // nullable
 
   AuthenticationProvider() {
     _auth = FirebaseAuth.instance;
     _navigationService = GetIt.instance.get<NavigationService>();
     _databaseService = GetIt.instance.get<DatabaseService>();
 
-    _auth.authStateChanges().listen((_user) {
-      if (_user != null) {
-        _databaseService.updateUserLastSeenTime(_user.uid);
-        _databaseService.getUser(_user.uid).then((_snapshot) {
-          Map<String, dynamic> _userData =
-              _snapshot.data()! as Map<String, dynamic>;
-          user = ChatUser.fromJSON({
-            "uid": _user.uid,
-            "name": _userData["name"],
-            "email": _userData["email"],
-            "last_active": _userData["last_active"],
-            "image": _userData["image"],
-          });
-          _navigationService.removeAndNavigateToRoute('/home');
-        });
-      } else {
+    _auth.authStateChanges().listen((firebaseUser) async {
+      // If NOT logged in → go to login and stop
+      if (firebaseUser == null) {
+        user = null;
         if (_navigationService.getCurrentRoute() != '/login') {
           _navigationService.removeAndNavigateToRoute('/login');
         }
+        notifyListeners();
+        return;
+      }
+
+      // From here we KNOW firebaseUser is not null
+      try {
+        // update last seen – should not throw, but we guard anyway
+        await _databaseService.updateUserLastSeenTime(firebaseUser.uid);
+      } catch (e) {
+        debugPrint('updateUserLastSeenTime error: $e');
+        // not fatal, just log
+      }
+
+      try {
+        final snapshot = await _databaseService.getUser(firebaseUser.uid);
+
+        if (!snapshot.exists) {
+          debugPrint('User doc does NOT exist for uid: ${firebaseUser.uid}');
+          // Do NOT crash – just send back to login
+          _navigationService.removeAndNavigateToRoute('/login');
+          return;
+        }
+
+        final data = snapshot.data() as Map<String, dynamic>?;
+
+        if (data == null) {
+          debugPrint('User data is null for uid: ${firebaseUser.uid}');
+          _navigationService.removeAndNavigateToRoute('/login');
+          return;
+        }
+
+        // Build ChatUser safely with fallbacks
+        user = ChatUser.fromJSON({
+          'uid': firebaseUser.uid,
+          'name': data['name'] ?? '',
+          'email': data['email'] ?? '',
+          'last_active': data['last_active'],
+          'image': data['image'] ?? '',
+        });
+
+        notifyListeners();
+        _navigationService.removeAndNavigateToRoute('/home');
+      } catch (e) {
+        // Any exception in Firestore / parsing lands here instead of crashing
+        debugPrint('Error in authStateChanges listener: $e');
+        _navigationService.removeAndNavigateToRoute('/login');
       }
     });
   }
 
-  Future<void> loginUsingEmailAndPassword(
-    String _email,
-    String _password,
-  ) async {
+  Future<void> loginUsingEmailAndPassword(String email, String password) async {
     try {
-      await _auth.signInWithEmailAndPassword(
-        email: _email,
-        password: _password,
-      );
-    } on FirebaseAuthException {
-      print("Error logging user into Firebase");
+      await _auth.signInWithEmailAndPassword(email: email, password: password);
+    } on FirebaseAuthException catch (e) {
+      debugPrint("Error logging user into Firebase: ${e.code}");
     } catch (e) {
-      print(e);
+      debugPrint('loginUsingEmailAndPassword error: $e');
     }
   }
 
   Future<String?> registerUserUsingEmailAndPassword(
-    String _email,
-    String _password,
+    String email,
+    String password,
   ) async {
     try {
-      UserCredential _credentials = await _auth.createUserWithEmailAndPassword(
-        email: _email,
-        password: _password,
+      final credentials = await _auth.createUserWithEmailAndPassword(
+        email: email,
+        password: password,
       );
-      return _credentials.user!.uid;
-    } on FirebaseAuthException {
-      print("Error registering user.");
+      return credentials.user?.uid;
+    } on FirebaseAuthException catch (e) {
+      debugPrint("Error registering user: ${e.code}");
     } catch (e) {
-      print(e);
+      debugPrint('registerUserUsingEmailAndPassword error: $e');
     }
+    return null;
   }
-
-  
 
   Future<void> logout() async {
     try {
       await _auth.signOut();
     } catch (e) {
-      print(e);
+      debugPrint('logout error: $e');
     }
   }
-
-  // Future<String?> registerUserUsingEmailAndPassword(
-  //   String _email,
-  //   String _password,
-  // ) async {
-  //   try {
-  //     UserCredential _credentials = await _auth.createUserWithEmailAndPassword(
-  //       email: _email,
-  //       password: _password,
-  //     );
-  //     return _credentials.user!.uid;
-  //   } on FirebaseAuthException {
-  //     print("Error registering user.");
-  //   } catch (e) {
-  //     print(e);
-  //   }
-  // }
-
-  // Future<void> logout() async {
-  //   try {
-  //     await _auth.signOut();
-  //   } catch (e) {
-  //     print(e);
-  //   }
-  // }
 }
